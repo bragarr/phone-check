@@ -12,6 +12,4 @@ const port = process.env.PORT || 3000;
 
 app.use("/phonelist", routerPhones);
 
-app.listen(port, () => {
-    console.log("Server on");
-})
+app.listen(port);
