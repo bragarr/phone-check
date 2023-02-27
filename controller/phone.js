@@ -1,6 +1,6 @@
 import { db } from "../db/db.js";
 import { Result } from "../src/script/result.js";
-import { responseMessage } from "../src/script/responseMessage.js";
+import { responseMessage, isNumberValid, typeValidation, phoneNumberAreaRes } from "../src/script/validation.js";
 
 export const informParams = (_, res) => {
     const falseResult = new Result(false, "You need to inform parameter!")
@@ -13,34 +13,30 @@ export const getPhoneList = (req, res) => {
 
     db.query(q, [value], (err, data) => {
         const digits = value.toString();
+        const numberValid = isNumberValid(digits);
         const message = responseMessage(digits);
         if (err) return res.json(err);
-        if (
-            digits.length > 11 ||
-            (digits.length < 10 && digits.length !== 3) ||
-            !Number(digits)
-        ) {
-            const falseResult = new Result(false, message);
+        if (!numberValid) {
+            const falseResult = new Result(numberValid, message);
             return res.status(200).json(falseResult);
         }
         const prefixNumber = digits.length > 3 ? digits.slice(0, 2) : digits;
+        const localDialing = digits.length > 3 ? typeValidation(digits, data) : "Utility number";
+        const numberArea = phoneNumberAreaRes(data, prefixNumber);
+        const country = "Brazil";
+        const countryCode = "+55";
         const phoneNumber =
             digits.length > 3
                 ? digits.slice(2, digits.length - 4) + "-" + digits.slice(-4)
                 : digits;
-        const phoneNumberArea = data.filter((item) => item.prefix === prefixNumber);
-        const type =
-            digits.length > 3
-                ? data.filter((type) => type.prefix === phoneNumber.slice(0, 1))
-                : data.filter((type) => type.prefix === phoneNumber);
         const generalResult = new Result(
-            true,
+            numberValid,
             message,
-            type[0].area,
-            phoneNumberArea[0].area,
-            "Brazil",
-            "+55",
-            "(" + prefixNumber + ")",
+            localDialing,
+            numberArea,
+            country,
+            countryCode,
+            prefixNumber,
             phoneNumber,
             "+55" + "(" + prefixNumber + ")" + phoneNumber
         );
