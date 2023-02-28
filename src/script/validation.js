@@ -1,8 +1,11 @@
-export const isNumberValid = (params) => {
+const landLineDigits = ["2", "3", "4", "5"];
+
+export const isNumberValid = (phoneNumber) => {
     if (
-        params.length > 11 ||
-        (params.length < 10 && params.length !== 3) ||
-        !Number(params)
+        phoneNumber.length > 11 ||
+        (phoneNumber.length < 10 && phoneNumber.length !== 3) ||
+        (phoneNumber.length === 10 && !landLineDigits.includes(phoneNumber[2])) ||
+        !Number(phoneNumber)
     ) {
         return false;
     } else {
@@ -10,29 +13,21 @@ export const isNumberValid = (params) => {
     }
 };
 
-export const responseMessage = (params) => {
-    const phoneNumberSize = params.length;
+export const responseMessage = (phoneNumber) => {
+    const phoneNumberSize = phoneNumber.length;
 
-    switch (phoneNumberSize) {
-        case (10, 11, 3):
-            return "Valid number";
-            break;
-        default:
-            return "Invalid number";
-            break;
+    if (
+        (phoneNumberSize === 10 && landLineDigits.includes(phoneNumber[2])) ||
+        phoneNumberSize === 11 ||
+        phoneNumberSize === 3
+    ) {
+        return "Valid Number";
+    } else {
+        return "Invalid number";
     }
 };
 
-export const typeValidation = (digits, data) => {
-    const type =
-    digits.length > 3
-        ? data.filter((type) => type.prefix === digits.slice(2, 3))
-        : data.filter((type) => type.prefix === digits);
-    console.log(type)
-    return type[0].area
-}
-
-export const phoneNumberAreaRes = (data, prefixNumber) => {
-    const phoneNumberArea = data.filter((item) => item.prefix === prefixNumber);
-    return phoneNumberArea[0].area;
-}
+export const numberAreaCode = (data, prefixNumber) => {
+    const areaCode = data.filter((item) => item.prefix == prefixNumber);
+    return areaCode[0].area;
+};

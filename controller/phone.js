@@ -1,6 +1,6 @@
 import { db } from "../db/db.js";
 import { Result } from "../src/script/result.js";
-import { responseMessage, isNumberValid, typeValidation, phoneNumberAreaRes } from "../src/script/validation.js";
+import { responseMessage, isNumberValid, numberAreaCode } from "../src/script/validation.js";
 
 export const informParams = (_, res) => {
     const falseResult = new Result(false, "You need to inform parameter!")
@@ -21,24 +21,23 @@ export const getPhoneList = (req, res) => {
             return res.status(200).json(falseResult);
         }
         const prefixNumber = digits.length > 3 ? digits.slice(0, 2) : digits;
-        const localDialing = digits.length > 3 ? typeValidation(digits, data) : "Utility number";
-        const numberArea = phoneNumberAreaRes(data, prefixNumber);
-        const country = "Brazil";
-        const countryCode = "+55";
+        const localDialing = "Utility number";
+        const numberArea = numberAreaCode(data, prefixNumber);
+        const countryCode = digits.length > 3 ? "+55" : "Not applied";
         const phoneNumber =
             digits.length > 3
                 ? digits.slice(2, digits.length - 4) + "-" + digits.slice(-4)
                 : digits;
+        const internationalFormat = digits.length > 3 ? countryCode + "(" + prefixNumber + ")" + phoneNumber : "Not applied";
         const generalResult = new Result(
             numberValid,
             message,
             localDialing,
             numberArea,
-            country,
             countryCode,
             prefixNumber,
             phoneNumber,
-            "+55" + "(" + prefixNumber + ")" + phoneNumber
+            internationalFormat
         );
         return res.status(200).json(generalResult);
     });
